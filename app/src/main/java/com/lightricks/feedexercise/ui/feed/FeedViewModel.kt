@@ -1,9 +1,21 @@
 package com.lightricks.feedexercise.ui.feed
 
+import android.util.Log
 import androidx.lifecycle.*
 import com.lightricks.feedexercise.data.FeedItem
+import com.lightricks.feedexercise.data.FeedRepository
+import com.lightricks.feedexercise.network.FeedApiService
+import com.lightricks.feedexercise.network.FeedData
 import com.lightricks.feedexercise.util.Event
-import java.lang.IllegalArgumentException
+import com.squareup.moshi.Moshi
+import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
+import io.reactivex.Single
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.schedulers.Schedulers
+import kotlinx.coroutines.newFixedThreadPoolContext
+import retrofit2.Retrofit
+import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
+import retrofit2.converter.moshi.MoshiConverterFactory
 
 /**
  * This view model manages the data for [FeedFragment].
@@ -11,8 +23,10 @@ import java.lang.IllegalArgumentException
 open class FeedViewModel : ViewModel() {
     private val isLoading = MutableLiveData<Boolean>()
     private val isEmpty = MutableLiveData<Boolean>()
-    private val feedItems = MediatorLiveData<List<FeedItem>>()
+    private val feedItems = MutableLiveData<List<FeedItem>>()
     private val networkErrorEvent = MutableLiveData<Event<String>>()
+    private val feedRepository = FeedRepository()
+
 
     fun getIsLoading(): LiveData<Boolean> = isLoading
     fun getIsEmpty(): LiveData<Boolean> = isEmpty
@@ -23,10 +37,51 @@ open class FeedViewModel : ViewModel() {
         refresh()
     }
 
+
     fun refresh() {
         //todo: fix the implementation
-        isLoading.value = false
         isEmpty.value = true
+        isLoading.value = false
+        subscribe()
+    }
+
+    private fun subscribe() {
+        val subscribe = getDataFromNetwork().subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe({ result -> handleResult(result) },
+                { error -> handleError(error) })
+    }
+
+
+    private fun handleResult(result: FeedData) {
+        isLoading.value = false
+        Log.d("show result", result.templatesMetaData.size.toString())
+        feedItems.postValue(result.templatesMetaData.map {
+            FeedItem(
+                it.id,
+                "https://assets.swishvideoapp.com/Android/demo/catalog/thumbnails/"+ it.templateThumbnailURI,
+                it.isPremium
+            )
+        })
+    }
+
+    //show error
+    private fun handleError(error: Throwable) {
+        networkErrorEvent.postValue(Event(error.localizedMessage))
+    }
+
+    private fun getDataFromNetwork(): Single<FeedData> {
+        isEmpty.value = false
+        isLoading.value = true
+        val moshi = Moshi.Builder()
+            .add(KotlinJsonAdapterFactory())
+            .build()
+        val retrofit = Retrofit.Builder().baseUrl("https://assets.swishvideoapp.com/")
+            .addConverterFactory(MoshiConverterFactory.create(moshi))
+            .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
+            .build()
+        val fetcher = retrofit.create(FeedApiService::class.java)
+        return fetcher.getFeedData()
     }
 }
 
