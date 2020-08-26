@@ -3,6 +3,8 @@ package com.lightricks.feedexercise.data
 import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.room.Room
+import com.lightricks.feedexercise.database.FeedDatabase
 import com.lightricks.feedexercise.network.FeedApiService
 import com.lightricks.feedexercise.network.FeedData
 import com.squareup.moshi.Moshi
@@ -25,6 +27,13 @@ class FeedRepository {
     init {
         subscribe()
     }
+
+//    private fun createDatabase(){
+//        val db = Room.databaseBuilder(
+//            ,
+//            FeedDatabase::class.java, "database-name"
+//        ).build()
+//    }
 
     private fun subscribe() {
         val subscribe = getDataFromNetwork().subscribeOn(Schedulers.io())
