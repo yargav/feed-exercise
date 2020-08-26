@@ -12,7 +12,6 @@ import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
-import kotlinx.coroutines.newFixedThreadPoolContext
 import retrofit2.Retrofit
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
 import retrofit2.converter.moshi.MoshiConverterFactory
@@ -23,7 +22,7 @@ import retrofit2.converter.moshi.MoshiConverterFactory
 open class FeedViewModel : ViewModel() {
     private val isLoading = MutableLiveData<Boolean>()
     private val isEmpty = MutableLiveData<Boolean>()
-    private val feedItems = MutableLiveData<List<FeedItem>>()
+    private lateinit var feedItems: LiveData<List<FeedItem>>
     private val networkErrorEvent = MutableLiveData<Event<String>>()
     private val feedRepository = FeedRepository()
 
@@ -33,56 +32,48 @@ open class FeedViewModel : ViewModel() {
     fun getFeedItems(): LiveData<List<FeedItem>> = feedItems
     fun getNetworkErrorEvent(): LiveData<Event<String>> = networkErrorEvent
 
+    fun setIsLoading(isLoading:Boolean) {this.isLoading.value = isLoading}
+    fun setIsEmpty(isEmpty:Boolean) { this.isEmpty.value = isEmpty}
+
     init {
+
         refresh()
     }
 
 
     fun refresh() {
-        //todo: fix the implementation
-        isEmpty.value = true
+        isEmpty.value = false
         isLoading.value = false
-        subscribe()
+        feedItems = feedRepository.getFeedData()
+//        subscribe()
     }
 
-    private fun subscribe() {
-        val subscribe = getDataFromNetwork().subscribeOn(Schedulers.io())
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe({ result -> handleResult(result) },
-                { error -> handleError(error) })
-    }
+//    private fun subscribe() {
+//        isLoading.value = true
+//        val subscribe = feedRepository.getDataFromNetwork().subscribeOn(Schedulers.io())
+//            .observeOn(AndroidSchedulers.mainThread())
+//            .subscribe({ result -> handleResult(result) },
+//                { error -> handleError(error) })
+//    }
 
-
-    private fun handleResult(result: FeedData) {
-        isLoading.value = false
-        Log.d("show result", result.templatesMetaData.size.toString())
-        feedItems.postValue(result.templatesMetaData.map {
-            FeedItem(
-                it.id,
-                "https://assets.swishvideoapp.com/Android/demo/catalog/thumbnails/"+ it.templateThumbnailURI,
-                it.isPremium
-            )
-        })
-    }
+//
+//    private fun handleResult(result: FeedData) {
+//        isLoading.value = false
+//        Log.d("show result", result.metaData.size.toString())
+//        feedItems.postValue(result.metaData.map {
+//            FeedItem(
+//                it.id,
+//                "https://assets.swishvideoapp.com/Android/demo/catalog/thumbnails/"+ it.thumbnailURI,
+//                it.isPremium
+//            )
+//        })
+//    }
 
     //show error
-    private fun handleError(error: Throwable) {
-        networkErrorEvent.postValue(Event(error.localizedMessage))
-    }
+//    private fun handleError(error: Throwable) {
+//        networkErrorEvent.postValue(Event(error.localizedMessage))
+//    }
 
-    private fun getDataFromNetwork(): Single<FeedData> {
-        isEmpty.value = false
-        isLoading.value = true
-        val moshi = Moshi.Builder()
-            .add(KotlinJsonAdapterFactory())
-            .build()
-        val retrofit = Retrofit.Builder().baseUrl("https://assets.swishvideoapp.com/")
-            .addConverterFactory(MoshiConverterFactory.create(moshi))
-            .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
-            .build()
-        val fetcher = retrofit.create(FeedApiService::class.java)
-        return fetcher.getFeedData()
-    }
 }
 
 /**

@@ -38,9 +38,10 @@ class FeedFragment : Fragment() {
     private fun setupViewModel() {
         viewModel = ViewModelProvider(this, FeedViewModelFactory())
             .get(FeedViewModel::class.java)
-
         viewModel.getFeedItems().observe(viewLifecycleOwner, Observer { items ->
             feedAdapter.items = items
+            viewModel.setIsLoading(false)
+            if (items.isEmpty()) { viewModel.setIsEmpty(true) }
         })
 
         viewModel.getNetworkErrorEvent().observe(viewLifecycleOwner, Observer { event ->
