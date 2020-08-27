@@ -6,7 +6,7 @@ import androidx.room.RoomDatabase
 /**
  * abstract class that holds the feed database
  */
-@Database(entities = [FeedItemEntity::class], version = 1)
+@Database(entities = [FeedItemEntity::class], version = 1, exportSchema = false)
 abstract class FeedDatabase: RoomDatabase() {
     abstract fun feedItemDao(): FeedItemDao
 

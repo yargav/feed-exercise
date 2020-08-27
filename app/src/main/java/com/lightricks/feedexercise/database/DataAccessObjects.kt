@@ -13,12 +13,12 @@ interface FeedItemDao {
     @Query("SELECT * FROM feedItems")
     fun getAll(): LiveData<List<FeedItemEntity>>
 
-    @Query("SELECT size() FROM feedItems")
+    @Query("SELECT COUNT(*) FROM feedItems")
     fun getCount(): Int
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     fun insertAll(feedItems: List<FeedItemEntity>): Completable
 
     @Delete
-    fun deleteAll(): Completable
+    fun deleteAll(feedItems: List<FeedItemEntity>): Completable
 }

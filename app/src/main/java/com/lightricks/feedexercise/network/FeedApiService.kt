@@ -1,11 +1,6 @@
 package com.lightricks.feedexercise.network
 
-import com.squareup.moshi.Moshi
-import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
-import io.reactivex.Observable
 import io.reactivex.Single
-import retrofit2.Call
-import retrofit2.Retrofit
 import retrofit2.http.GET
 
 /**
