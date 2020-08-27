@@ -33,7 +33,7 @@ class FeedRepository(private val feedDatabase: FeedDatabase, private val fetcher
             .subscribe()
     }
 
-    private fun refresh(): Completable {
+    fun refresh(): Completable {
         Log.d("debugging", "in refresh feed repository")
         val single = getDataFromNetwork()
         return single.flatMapCompletable { result ->

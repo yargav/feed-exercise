@@ -41,12 +41,10 @@ open class FeedViewModel(application: Application) : AndroidViewModel(applicatio
             .build().create(FeedApiService::class.java)
     )
 
-
     fun getIsLoading(): LiveData<Boolean> = isLoading
     fun getIsEmpty(): LiveData<Boolean> = isEmpty
     fun getFeedItems(): LiveData<List<FeedItem>> = feedItems
     fun getNetworkErrorEvent(): LiveData<Event<String>> = networkErrorEvent
-
 
     init {
         isEmpty.postValue(false)
@@ -61,10 +59,9 @@ open class FeedViewModel(application: Application) : AndroidViewModel(applicatio
         refresh()
     }
 
-    //TODO figure out how to not add another source when refreshed
     fun refresh() {
         isEmpty.postValue(false)
-        //TODO check if this is the problem with the load, temporary!
+        //TODO change temporary load solution
         isLoading.postValue(true)
         Thread.sleep(10)
         isLoading.postValue(false)
@@ -78,7 +75,7 @@ open class FeedViewModel(application: Application) : AndroidViewModel(applicatio
  * It's not necessary to use this factory at this stage. But if we will need to inject
  * dependencies into [FeedViewModel] in the future, then this is the place to do it.
  */
-//TODO figure out if i need this factory, what to put in it???
+
 class FeedViewModelFactory(private val application: Application) : ViewModelProvider.Factory {
     override fun <T : ViewModel?> create(modelClass: Class<T>): T {
         if (!modelClass.isAssignableFrom(FeedViewModel::class.java)) {
