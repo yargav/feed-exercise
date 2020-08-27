@@ -6,12 +6,20 @@ import androidx.room.Room
 import com.lightricks.feedexercise.data.FeedItem
 import com.lightricks.feedexercise.data.FeedRepository
 import com.lightricks.feedexercise.database.FeedDatabase
+import com.lightricks.feedexercise.network.FeedApiService
 import com.lightricks.feedexercise.util.Event
+import com.squareup.moshi.Moshi
+import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
+import retrofit2.Retrofit
+import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
+import retrofit2.converter.moshi.MoshiConverterFactory
 
 /**
  * This view model manages the data for [FeedFragment].
  */
 open class FeedViewModel(application: Application) : AndroidViewModel(application) {
+
+    private val BASE_URL = "https://assets.swishvideoapp.com/"
     private val isLoading = MutableLiveData<Boolean>()
     private val isEmpty = MutableLiveData<Boolean>()
     private val feedItems = MediatorLiveData<List<FeedItem>>()
@@ -20,7 +28,17 @@ open class FeedViewModel(application: Application) : AndroidViewModel(applicatio
         Room.databaseBuilder(
             application.applicationContext,
             FeedDatabase::class.java, "FeedDatabase"
-        ).build()
+        ).build(),
+        Retrofit.Builder().baseUrl(BASE_URL)
+            .addConverterFactory(
+                MoshiConverterFactory.create(
+                    Moshi.Builder()
+                        .add(KotlinJsonAdapterFactory())
+                        .build()
+                )
+            )
+            .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
+            .build().create(FeedApiService::class.java)
     )
 
 
@@ -50,6 +68,7 @@ open class FeedViewModel(application: Application) : AndroidViewModel(applicatio
         isLoading.postValue(true)
         Thread.sleep(10)
         isLoading.postValue(false)
+//        feedItems.postValue(feedItems.value?)
     }
 
 }
