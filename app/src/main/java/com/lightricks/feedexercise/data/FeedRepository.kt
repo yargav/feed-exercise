@@ -28,8 +28,7 @@ class FeedRepository(private val feedDatabase: FeedDatabase, private val fetcher
     fun getFeedData(): LiveData<List<FeedItem>> = feedItems
 
     init {
-        refresh().subscribeOn(Schedulers.io())
-            .observeOn(AndroidSchedulers.mainThread())
+        refresh().observeOn(AndroidSchedulers.mainThread())
             .subscribe()
     }
 
@@ -44,7 +43,7 @@ class FeedRepository(private val feedDatabase: FeedDatabase, private val fetcher
                     it.isPremium
                 )
             })
-        }
+        }.subscribeOn(Schedulers.io())
     }
 
     private fun getDataFromNetwork(): Single<FeedData> {

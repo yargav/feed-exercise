@@ -10,6 +10,7 @@ import com.lightricks.feedexercise.network.FeedApiService
 import com.lightricks.feedexercise.util.Event
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
+import io.reactivex.android.schedulers.AndroidSchedulers
 import retrofit2.Retrofit
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
 import retrofit2.converter.moshi.MoshiConverterFactory
@@ -53,6 +54,7 @@ open class FeedViewModel(application: Application) : AndroidViewModel(applicatio
             if (result.isEmpty()) isEmpty.postValue(true)
             else {
                 isEmpty.postValue(false)
+                isLoading.postValue(false)
                 feedItems.postValue(result)
             }
         }
@@ -60,12 +62,8 @@ open class FeedViewModel(application: Application) : AndroidViewModel(applicatio
     }
 
     fun refresh() {
-        isEmpty.postValue(false)
-        //TODO change temporary load solution
-        isLoading.postValue(true)
-        Thread.sleep(10)
-        isLoading.postValue(false)
-//        feedItems.postValue(feedItems.value?)
+        feedRepository.refresh().observeOn(AndroidSchedulers.mainThread())
+            .subscribe()
     }
 
 }
