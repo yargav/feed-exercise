@@ -38,7 +38,6 @@ class FeedFragment : Fragment() {
     }
 
     private fun setupViewModel() {
-        //TODO, can a fragmetn exists without a context (aka when context is null??)
         viewModel = ViewModelProvider(this, FeedViewModelFactory(context!!)).get(FeedViewModel::class.java)
         viewModel.getFeedItems().observe(viewLifecycleOwner, Observer { items ->
             feedAdapter.items = items

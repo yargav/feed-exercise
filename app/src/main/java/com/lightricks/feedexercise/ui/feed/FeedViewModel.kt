@@ -39,9 +39,11 @@ open class FeedViewModel(private val feedRepository: FeedRepository) : ViewModel
     }
 
     fun refresh() {
-        feedRepository.refresh().observeOn(AndroidSchedulers.mainThread())
+        feedRepository.refresh()
+            .observeOn(AndroidSchedulers.mainThread())
             .subscribe()
     }
+
 
 }
 

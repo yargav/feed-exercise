@@ -11,7 +11,7 @@ class MockFeedApiService : FeedApiService {
         return Single.just(
             FeedData(
                 listOf(
-                    FeedData.Template(
+                    Template(
                         "lensflare-unleash-the-power-of-nature.json",
                         "01E18PGE1RYB3R9YF9HRXQ0ZSD",
                         false,

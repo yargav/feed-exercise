@@ -10,7 +10,6 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.google.common.truth.Truth.assertThat
 import com.lightricks.feedexercise.database.FeedDatabase
 import com.lightricks.feedexercise.database.FeedItemEntity
-import com.lightricks.feedexercise.network.FeedData
 import com.lightricks.feedexercise.network.MockFeedApiService
 import org.junit.After
 import org.junit.Before
@@ -54,29 +53,10 @@ class FeedRepositoryTest {
         feedRepository = FeedRepository(feedDatabase, mockFeedApiService)
     }
 
-    @Test
-    fun feedApiService_InitializationTest() {
-        val feedData = mockFeedApiService.getFeedData().blockingGet()
-        assertThat(feedData).isEqualTo(
-            FeedData(
-                listOf(
-                    FeedData.Template(
-                        CONFIGURATION,
-                        ID,
-                        IS_NEW,
-                        IS_PREMIUM,
-                        CATEGORIES,
-                        NAME,
-                        THUMBNAIL_URI
-                    )
-                )
-            )
-        )
-    }
 
     @Test
     fun refresh_SavedItemsInRepositoryTest() {
-        feedRepository.refresh().blockingGet()
+        feedRepository.refresh()
         assertThat(
             feedRepository.getFeedData().blockingObserve()
         ).isEqualTo(
@@ -92,7 +72,7 @@ class FeedRepositoryTest {
 
     @Test
     fun refresh_SavedItemsInDatabaseTest() {
-        feedRepository.refresh().blockingGet()
+        feedRepository.refresh()
         assertThat(feedDatabase.feedItemDao().getAll().blockingObserve()).isEqualTo(
             listOf(
                 FeedItemEntity(
@@ -128,8 +108,11 @@ class FeedRepositoryTest {
                 )
             )
         ).blockingAwait()
+
+        assertThat(feedDatabase.feedItemDao().getAll().blockingObserve()).isEmpty()
         assertThat(feedRepository.getFeedData().blockingObserve()).isEmpty()
     }
+
 
     @After
     fun disposeFeedRepository() {

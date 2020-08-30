@@ -23,13 +23,15 @@ class FeedRepository(private val feedDatabase: FeedDatabase, private val fetcher
             feedItemEntities.map { FeedItem(it.id, it.thumbnailUrl, it.isPremium) }
         }
 
+
     private val PREFIX_URL = "https://assets.swishvideoapp.com/Android/demo/catalog/thumbnails/"
 
     fun getFeedData(): LiveData<List<FeedItem>> = feedItems
 
     init {
-        refresh().observeOn(AndroidSchedulers.mainThread())
-            .subscribe()
+            refresh().observeOn(AndroidSchedulers.mainThread())
+                .subscribe()
+
     }
 
     fun refresh(): Completable {
@@ -45,6 +47,7 @@ class FeedRepository(private val feedDatabase: FeedDatabase, private val fetcher
             })
         }.subscribeOn(Schedulers.io())
     }
+
 
     private fun getDataFromNetwork(): Single<FeedData> {
         return fetcher.getFeedData()
