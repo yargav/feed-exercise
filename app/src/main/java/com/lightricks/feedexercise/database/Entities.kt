@@ -6,7 +6,7 @@ import androidx.room.PrimaryKey
 /**
  * Entity class, here represents one feed Item (template)
  */
-@Entity(tableName = "FeedItems")
+@Entity(tableName = "feed_items")
 data class FeedItemEntity(
     @PrimaryKey val id: String,
     val thumbnailUrl: String,

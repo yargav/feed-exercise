@@ -10,13 +10,13 @@ import io.reactivex.Completable
 
 @Dao
 interface FeedItemDao {
-    @Query("SELECT * FROM feedItems")
+    @Query("SELECT * FROM feed_items")
     fun getAll(): LiveData<List<FeedItemEntity>>
 
-    @Query("SELECT COUNT(*) FROM feedItems")
+    @Query("SELECT COUNT(*) FROM feed_items")
     fun getCount(): Int
 
-    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertAll(feedItems: List<FeedItemEntity>): Completable
 
     @Delete
