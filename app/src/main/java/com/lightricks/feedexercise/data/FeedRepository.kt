@@ -37,7 +37,7 @@ class FeedRepository(private val feedDatabase: FeedDatabase, private val fetcher
         Log.d("debugging", "in refresh feed repository")
         val single = getDataFromNetwork()
         return single.flatMapCompletable { result ->
-            feedDatabase.feedItemDao().insertAll(result.metaData.map {
+            feedDatabase.feedItemDao().insertAll(result.templates.map {
                 FeedItemEntity(
                     it.id,
                     PREFIX_URL + it.thumbnailURI,
