@@ -31,17 +31,24 @@ open class FeedViewModel(private val feedRepository: FeedRepository) : ViewModel
             if (result.isEmpty()) isEmpty.postValue(true)
             else {
                 isEmpty.postValue(false)
-                isLoading.postValue(false)
                 feedItems.postValue(result)
             }
+            isLoading.postValue(false)
+
         }
         refresh()
     }
 
     fun refresh() {
-        feedRepository.refresh()
+        var disposable = feedRepository.refresh()
             .observeOn(AndroidSchedulers.mainThread())
-            .subscribe()
+            .subscribe( {
+            }, { error -> handleError(error?.message)})
+    }
+
+    private fun handleError(message: String?){
+        networkErrorEvent.postValue(Event(message?:"Error without message"))
+        isLoading.postValue(false)
     }
 
 

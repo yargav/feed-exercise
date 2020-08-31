@@ -9,7 +9,6 @@ import com.lightricks.feedexercise.network.FeedApiService
 import com.lightricks.feedexercise.network.FeedData
 import io.reactivex.Completable
 import io.reactivex.Single
-import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 
 /**
@@ -28,11 +27,6 @@ class FeedRepository(private val feedDatabase: FeedDatabase, private val fetcher
 
     fun getFeedData(): LiveData<List<FeedItem>> = feedItems
 
-    init {
-            refresh().observeOn(AndroidSchedulers.mainThread())
-                .subscribe()
-
-    }
 
     fun refresh(): Completable {
         Log.d("debugging", "in refresh feed repository")
