@@ -56,7 +56,7 @@ class FeedRepositoryTest {
 
     @Test
     fun refresh_SavedItemsInRepositoryTest() {
-        feedRepository.refresh()
+        feedRepository.refresh().blockingAwait()
         assertThat(
             feedRepository.getFeedData().blockingObserve()
         ).isEqualTo(
@@ -72,7 +72,7 @@ class FeedRepositoryTest {
 
     @Test
     fun refresh_SavedItemsInDatabaseTest() {
-        feedRepository.refresh()
+        feedRepository.refresh().blockingAwait()
         assertThat(feedDatabase.feedItemDao().getAll().blockingObserve()).isEqualTo(
             listOf(
                 FeedItemEntity(
@@ -85,20 +85,13 @@ class FeedRepositoryTest {
     }
 
     @Test
-    fun feedItems_UpdatedAfterInitTest() {
-        assertThat(feedRepository.getFeedData().blockingObserve()).isEqualTo(
-            listOf(
-                FeedItem(
-                    ID,
-                    PREFIX_URL + THUMBNAIL_URI,
-                    IS_PREMIUM
-                )
-            )
-        )
+    fun feedItems_EmptyAfterInitTest() {
+        assertThat(feedRepository.getFeedData().blockingObserve()).isEmpty()
     }
 
     @Test
     fun feedItems_UpdatedAfterDeleteTest() {
+        feedRepository.refresh().blockingAwait()
         feedDatabase.feedItemDao().deleteAll(
             listOf(
                 FeedItemEntity(
