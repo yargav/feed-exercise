@@ -18,6 +18,7 @@ open class FeedViewModel(private val feedRepository: FeedRepository) : ViewModel
     private val isEmpty = MutableLiveData<Boolean>()
     private val feedItems = MediatorLiveData<List<FeedItem>>()
     private val networkErrorEvent = MutableLiveData<Event<String>>()
+    private val UNKNOWN_ERROR_MESSAGE = "An Unknown Error Occurred, Please Try Again Later"
 
     fun getIsLoading(): LiveData<Boolean> = isLoading
     fun getIsEmpty(): LiveData<Boolean> = isEmpty
@@ -33,8 +34,6 @@ open class FeedViewModel(private val feedRepository: FeedRepository) : ViewModel
                 isEmpty.postValue(false)
                 feedItems.postValue(result)
             }
-            isLoading.postValue(false)
-
         }
         refresh()
     }
@@ -42,12 +41,12 @@ open class FeedViewModel(private val feedRepository: FeedRepository) : ViewModel
     fun refresh() {
         var disposable = feedRepository.refresh()
             .observeOn(AndroidSchedulers.mainThread())
-            .subscribe( {
-            }, { error -> handleError(error?.message)})
+            .subscribe( { isLoading.postValue(false) },
+                { error -> handleError(error?.message)})
     }
 
     private fun handleError(message: String?){
-        networkErrorEvent.postValue(Event(message?:"Error without message"))
+        networkErrorEvent.postValue(Event(message?:UNKNOWN_ERROR_MESSAGE))
         isLoading.postValue(false)
     }
 
